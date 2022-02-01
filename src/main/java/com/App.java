@@ -7,36 +7,36 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.Solution.ZONES;
 import static java.util.stream.Collectors.groupingBy;
 
 class Photo {
-    public Photo(String nameWithoutExtension, String extension, String city, String date, String time) {
-        this.nameWithoutExtension = nameWithoutExtension;
-        this.extension = extension;
-        this.city = city;
-        this.setDate(date);
-        this.setTime(time);
-    }
-
-    public Photo() {}
-
     private String nameWithoutExtension;
     private String extension;
     private String city;
     private LocalDate date;
     private LocalTime time;
 
-    public String getNameWithoutExtension() {
-        return nameWithoutExtension;
+    private Photo() {
+    }
+
+    public static Optional<Photo> fromArray(String[] arr) {
+        if (arr.length == 4) {
+            Photo photo = new Photo();
+            photo.setNameAndExtension(arr[0]);
+            photo.setCity(arr[1]);
+            photo.setDate(arr[2]);
+            photo.setTime(arr[3]);
+            return Optional.of(photo);
+        }
+        return Optional.empty();
     }
 
     public void setNameAndExtension(String fileName) {
@@ -58,7 +58,7 @@ class Photo {
     }
 
     public void setDate(String date) {
-        this.date = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));;
+        this.date = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     public String getExtension() {
@@ -72,38 +72,12 @@ class Photo {
     public void setTime(String time) {
         this.time = LocalTime.parse(time, DateTimeFormatter.ofPattern("H:mm:ss"));
     }
-
-    public static Optional<Photo> fromArray(String[] arr)
-    {
-        if(arr.length == 4)
-        {
-            Photo photo = new Photo();
-            photo.setNameAndExtension(arr[0].replace(",",""));
-            photo.setCity(arr[1].replace(",",""));
-            photo.setDate(arr[2].replace(",",""));
-            photo.setTime(arr[3].replace(",",""));
-            return Optional.of(photo);
-        }
-        return Optional.empty();
-    }
 }
 
 class Solution {
-    //Extensions: jpg, png, jpeg
-    //city where photo was taken
-    //time and date the photo
-    // photo.jpg, Warsaw, 2013-09-05 14:08:15
-
-    // 1. group by city
-    /**
-     * 2. sort by the time
-     * natural numbers assignet to the photos starting from 1.
-     *
-     * name: city_number_,extension (prefix numbers 000001 - length of the longest number)
-     *
-     *
-     */
-
+    public static final Map<String, ZoneId> ZONES = Map.of("Warsaw", ZoneId.of("Europe/Warsaw"),
+            "Paris", ZoneId.of("Europe/Paris"),
+            "London", ZoneId.of("Europe/London")); //to be extended ..
 
     public static void main(String[] args) {
         String S = "photo.jpg, Warsaw, 2013-09-05 14:08:15\n" +
@@ -122,167 +96,97 @@ class Solution {
                 "f.png, Warsaw, 2016-01-02 10:55:32\n" +
                 "g.jpg, Warsaw, 2016-02-29 22:13:11";
 
+        System.out.println(new Solution().solution(S));
+    }
 
+    public static Stream<PhotosWithSecondaryPosition> withFileNameSuffixes(List<PhotoWithInitialPosition> photos) {
+        int size = photos.size();
+
+        List<PhotoWithInitialPosition> sorted = photos.stream()
+                .sorted(Comparator.comparing(PhotoWithInitialPosition::getZonedDateTime))
+                .collect(Collectors.toList());
+
+        return IntStream.range(0, size)
+                .mapToObj(i -> new PhotosWithSecondaryPosition(sorted.get(i), i, size));
+    }
+
+    public String solution(String S) {
         List<Photo> photos = Arrays.stream(S.split("\\r?\\n"))
-                .map(s -> s.split(" "))
+                .map(s -> s
+                        .replace(",", "")
+                        .split(" "))
                 .map(Photo::fromArray)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
-//                .collect(Collectors.groupingBy(Photo::getCity));
-
-
-        List<PhotoWithInitialPosition> photosWP = IntStream.range(0, photos.size())
+        List<PhotoWithInitialPosition> photosWithInitialPositions = IntStream.range(0, photos.size())
                 .mapToObj(i -> new PhotoWithInitialPosition(photos.get(i), i))
                 .collect(Collectors.toList());
 
-        Map<String, List<PhotoWithInitialPosition>> collect = photosWP.stream().collect(groupingBy(p -> p.getPhoto().getCity()));//todo handle demeter
+        Map<String, List<PhotoWithInitialPosition>> groupedByCity = photosWithInitialPositions.stream()
+                .collect(groupingBy(PhotoWithInitialPosition::getCity));
 
-        collect.entrySet().stream().
-                map(e -> handleGroup(e.getValue()))
-                .flatMap(i -> i)
-                .sorted(Comparator.comparing(p -> p.getPhoto().getInitialPosition()))
-                 .peek(s -> System.out.println(s.getFinalName()))
-                 .map(s -> s.getFinalName())
-                 .collect(Collectors.joining(","));
-
-//        for(String s: split)
-//        {
-//            System.out.println(s);
-//        }
-    }
-//    public String solution(String S) {
-//        // write your code in Java SE 8
-//
-//        String lines[] = S.split("\\r?\\n");
-//    }
-
-    public static Stream<PhotosWithSecondaryPosition> handleGroup(List<PhotoWithInitialPosition> photos)
-    {
-        int size = photos.size();
-
-        List<PhotoWithInitialPosition> sorted = photos.stream()
-                .sorted(Comparator.comparing(PhotoWithInitialPosition::getZdt))
-                .collect(Collectors.toList());
-
-        return IntStream.range(0, size)
-                .mapToObj(i -> new PhotosWithSecondaryPosition(sorted.get(i), i, size));
-//                .map(PhotosWithSecondaryPosition::getFinalName)
-//                .peek(System.out::println);
-    }
-
-}
-
-
-class PhotoWithInitialPositionAndNameSuffix
-{
-    public PhotoWithInitialPositionAndNameSuffix(PhotoWithInitialPosition photo, String nameSuffix) {
-        this.photo = photo;
-        this.nameSuffix = nameSuffix;
-    }
-
-    private PhotoWithInitialPosition photo;
-    private String nameSuffix;
-
-    public PhotoWithInitialPosition getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(PhotoWithInitialPosition photo) {
-        this.photo = photo;
-    }
-
-    public String getNameSuffix() {
-        return nameSuffix;
-    }
-
-    public void setNameSuffix(String nameSuffix) {
-        this.nameSuffix = nameSuffix;
+        return groupedByCity.values().stream()
+                .flatMap(Solution::withFileNameSuffixes)
+                .sorted(Comparator.comparing(PhotosWithSecondaryPosition::getInitialPosition))
+                .map(PhotosWithSecondaryPosition::getFinalName)
+                .collect(Collectors.joining("\n"));
     }
 }
 
-class PhotoWithInitialPosition
-{
-    public static final Map<String, ZoneId> ZONES = Map.of("Warsaw", ZoneId.of("Europe/Warsaw"),
-            "Paris", ZoneId.of("Europe/Paris"),
-            "London", ZoneId.of("Europe/London"));
+class PhotoWithInitialPosition {
+    private final Photo photo;
+    private final ZonedDateTime zonedDateTime;
+    private final int initialPosition;
 
     public PhotoWithInitialPosition(Photo photo, int initialPosition) {
         this.photo = photo;
         this.initialPosition = initialPosition;
-        this.zdt = ZonedDateTime.of(photo.getDate(), photo.getTime(), ZONES.get(photo.getCity()));
+        this.zonedDateTime = ZonedDateTime.of(photo.getDate(), photo.getTime(), ZONES.get(photo.getCity()));
     }
 
-    private Photo photo;
-    private int initialPosition;
-    private ZonedDateTime zdt;
-
-    public Photo getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(Photo photo) {
-        this.photo = photo;
+    public String getCity() {
+        return photo.getCity();
     }
 
     public int getInitialPosition() {
         return initialPosition;
     }
 
-    public void setInitialPosition(int initialPosition) {
-        this.initialPosition = initialPosition;
+    public ZonedDateTime getZonedDateTime() {
+        return zonedDateTime;
     }
 
-    public ZonedDateTime getZdt() {
-        return zdt;
+    public String getExtension() {
+        return photo.getExtension();
     }
 }
 
-class PhotosWithSecondaryPosition
-{
+class PhotosWithSecondaryPosition {
+    private final PhotoWithInitialPosition photo;
+    private String secondaryPosition;
+
     public PhotosWithSecondaryPosition(PhotoWithInitialPosition photo, int secondaryPosition, int nrOfDigits) {
         this.photo = photo;
         this.setSecondaryPosition(secondaryPosition, nrOfDigits);
     }
 
-    private PhotoWithInitialPosition photo;
-    private String secondaryPosition;
-
-    public PhotoWithInitialPosition getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(PhotoWithInitialPosition photo) {
-        this.photo = photo;
-    }
-
-    public String getSecondaryPosition() {
-        return secondaryPosition;
-    }
-
-    public void setSecondaryPosition(int secondaryPosition, int nrOfDigits) {
-        this.secondaryPosition = numberOfLeadingZeros(secondaryPosition, nrOfDigits);
-    }
-//    public static int numberOfLeadingZeros(List<Photo> photos)
-//    {
-//        int size = photos.size();
-//        int i = (int) (Math.log10(size) + 1);
-//        String format = "%0" + i + "d";
-//        String formatted = String.format("format", 5);
-//        return 1;
-//    }
-
-    public static String numberOfLeadingZeros(int secondaryPosition, int nrOfDigits)
-    {
+    public static String numberOfLeadingZeros(int secondaryPosition, int nrOfDigits) {
         int i = (int) (Math.log10(nrOfDigits) + 1);
         String format = "%0" + i + "d";
         return String.format(format, secondaryPosition + 1);
     }
 
-    public String getFinalName()
-    {
-        return photo.getPhoto().getCity() + secondaryPosition + "." + photo.getPhoto().getExtension(); //todo handle demeter
+    public int getInitialPosition() {
+        return photo.getInitialPosition();
     }
 
+    public void setSecondaryPosition(int secondaryPosition, int nrOfDigits) {
+        this.secondaryPosition = numberOfLeadingZeros(secondaryPosition, nrOfDigits);
+    }
+
+    public String getFinalName() {
+        return photo.getCity() + secondaryPosition + "." + photo.getExtension();
+    }
 }
