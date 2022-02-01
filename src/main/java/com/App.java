@@ -78,10 +78,10 @@ class Photo {
         if(arr.length == 4)
         {
             Photo photo = new Photo();
-            photo.setNameAndExtension(arr[0]);
-            photo.setCity(arr[1]);
-            photo.setDate(arr[2]);
-            photo.setTime(arr[3]);
+            photo.setNameAndExtension(arr[0].replace(",",""));
+            photo.setCity(arr[1].replace(",",""));
+            photo.setDate(arr[2].replace(",",""));
+            photo.setTime(arr[3].replace(",",""));
             return Optional.of(photo);
         }
         return Optional.empty();
@@ -277,7 +277,7 @@ class PhotosWithSecondaryPosition
     {
         int i = (int) (Math.log10(nrOfDigits) + 1);
         String format = "%0" + i + "d";
-        return String.format("format", secondaryPosition);
+        return String.format(format, secondaryPosition + 1);
     }
 
     public String getFinalName()
