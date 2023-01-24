@@ -4,14 +4,12 @@ import com.Photo;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PhotoWithInitialPosition
 {
-    public static final Map<String, ZoneId> ZONES = Map.of("Warsaw", ZoneId.of("Europe/Warsaw"),
-            "Paris", ZoneId.of("Europe/Paris"),
-            "London", ZoneId.of("Europe/London")); //to be extended ..
-
+    public static final Map<String, ZoneId> ZONES = initZones();
     private final Photo photo;
     private final ZonedDateTime zonedDateTime;
     private final int initialPosition;
@@ -36,5 +34,14 @@ public class PhotoWithInitialPosition
 
     public String getExtension() {
         return photo.getExtension();
+    }
+
+    public static Map<String, ZoneId> initZones()
+    {
+        Map<String, ZoneId> zones = new HashMap<>();
+        zones.put("Warsaw", ZoneId.of("Europe/Warsaw"));
+        zones.put("Paris", ZoneId.of("Europe/Paris"));
+        zones.put("London", ZoneId.of("Europe/London"));
+        return zones;
     }
 }

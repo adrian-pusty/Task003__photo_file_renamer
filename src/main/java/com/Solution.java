@@ -36,17 +36,6 @@ class Solution
         System.out.println(new Solution().solution(S));
     }
 
-    public static Stream<PhotosWithSecondaryPosition> withFileNameSuffixes(List<PhotoWithInitialPosition> photos) {
-        int size = photos.size();
-
-        List<PhotoWithInitialPosition> sorted = photos.stream()
-                .sorted(Comparator.comparing(PhotoWithInitialPosition::getZonedDateTime))
-                .collect(Collectors.toList());
-
-        return IntStream.range(0, size)
-                .mapToObj(i -> new PhotosWithSecondaryPosition(sorted.get(i), i, size));
-    }
-
     public String solution(String S) {
         List<Photo> photos = Arrays.stream(S.split("\\r?\\n"))
                 .map(s -> s
@@ -69,5 +58,17 @@ class Solution
                 .sorted(Comparator.comparing(PhotosWithSecondaryPosition::getInitialPosition))
                 .map(PhotosWithSecondaryPosition::getFinalName)
                 .collect(Collectors.joining("\n"));
+    }
+
+
+    public static Stream<PhotosWithSecondaryPosition> withFileNameSuffixes(List<PhotoWithInitialPosition> photos) {
+        int size = photos.size();
+
+        List<PhotoWithInitialPosition> sorted = photos.stream()
+                .sorted(Comparator.comparing(PhotoWithInitialPosition::getZonedDateTime))
+                .collect(Collectors.toList());
+
+        return IntStream.range(0, size)
+                .mapToObj(i -> new PhotosWithSecondaryPosition(sorted.get(i), i, size));
     }
 }
