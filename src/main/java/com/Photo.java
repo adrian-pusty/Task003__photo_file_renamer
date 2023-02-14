@@ -2,62 +2,78 @@ package com;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class Photo
 {
+    public static final Map<String, ZoneId> ZONES = initZones();
+    private ZonedDateTime time;
     private String nameWithoutExtension;
     private String extension;
     private String city;
-    private LocalDate date;
-    private LocalTime time;
 
     private Photo() {}
 
-    public static Optional<Photo> fromArray(String[] arr) {
-        if (arr.length == 4) {
+    public static Optional<Photo> fromArray(String[] arr)
+    {
+        if (arr.length == 4)
+        {
             Photo photo = new Photo();
             photo.setNameAndExtension(arr[0]);
             photo.setCity(arr[1]);
-            photo.setDate(arr[2]);
-            photo.setTime(arr[3]);
+            photo.setTime(arr);
             return Optional.of(photo);
         }
         return Optional.empty();
     }
 
-    public void setNameAndExtension(String fileName) {
+    public void setNameAndExtension(String fileName)
+    {
         String[] split = fileName.split("\\.");
         this.nameWithoutExtension = split[0];
         this.extension = split[1];
     }
 
-    public String getCity() {
+    public String getCity()
+    {
         return city;
     }
 
-    public void setCity(String city) {
+    private void setCity(String city)
+    {
         this.city = city;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    }
-
-    public String getExtension() {
+    public String getExtension()
+    {
         return extension;
     }
 
-    public LocalTime getTime() {
+
+    public ZonedDateTime getTime()
+    {
         return time;
     }
 
-    public void setTime(String time) {
-        this.time = LocalTime.parse(time, DateTimeFormatter.ofPattern("H:mm:ss"));
+    private void setTime(String[] arr)
+    {
+        String city = arr[1];
+        LocalDate date = LocalDate.parse(arr[2], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalTime time = LocalTime.parse(arr[3], DateTimeFormatter.ofPattern("H:mm:ss"));
+        this.time = ZonedDateTime.of(date, time, ZONES.get(city));
+    }
+
+    public static Map<String, ZoneId> initZones()
+    {
+        Map<String, ZoneId> zones = new HashMap<>();
+        zones.put("Warsaw", ZoneId.of("Europe/Warsaw"));
+        zones.put("Paris", ZoneId.of("Europe/Paris"));
+        zones.put("London", ZoneId.of("Europe/London"));
+        return zones;
     }
 }
