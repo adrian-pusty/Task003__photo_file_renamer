@@ -5,12 +5,12 @@ import com.Photo;
 import java.time.ZonedDateTime;
 
 
-public class PhotoWithInitialPosition
+public class PhotoWithInitPos
 {
     private final Photo photo;
     private final int initialPosition;
 
-    public PhotoWithInitialPosition(Photo photo, int initialPosition)
+    public PhotoWithInitPos(Photo photo, int initialPosition)
     {
         this.photo = photo;
         this.initialPosition = initialPosition;

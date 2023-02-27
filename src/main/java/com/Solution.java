@@ -1,7 +1,7 @@
 package com;
 
-import com.auxiliary.PhotoWithInitialPosition;
-import com.auxiliary.PhotosWithSecondaryPosition;
+import com.auxiliary.PhotoWithInitPos;
+import com.auxiliary.PhotosWithSecondaryPos;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,29 +26,29 @@ class Solution
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
-        List<PhotoWithInitialPosition> photosWithInitialPositions = IntStream.range(0, photos.size())
-                .mapToObj(i -> new PhotoWithInitialPosition(photos.get(i), i))
+        List<PhotoWithInitPos> photosWithInitialPositions = IntStream.range(0, photos.size())
+                .mapToObj(i -> new PhotoWithInitPos(photos.get(i), i))
                 .collect(Collectors.toList());
 
-        Map<String, List<PhotoWithInitialPosition>> groupedByCity = photosWithInitialPositions.stream()
-                .collect(groupingBy(PhotoWithInitialPosition::getCity));
+        Map<String, List<PhotoWithInitPos>> groupedByCity = photosWithInitialPositions.stream()
+                .collect(groupingBy(PhotoWithInitPos::getCity));
 
         return groupedByCity.values().stream()
                 .flatMap(Solution::withFileNameSuffixes)
-                .sorted(Comparator.comparing(PhotosWithSecondaryPosition::getInitialPosition))
-                .map(PhotosWithSecondaryPosition::getFinalName)
+                .sorted(Comparator.comparing(PhotosWithSecondaryPos::getInitialPosition))
+                .map(PhotosWithSecondaryPos::getFinalName)
                 .collect(Collectors.joining("\n"));
     }
 
 
-    public static Stream<PhotosWithSecondaryPosition> withFileNameSuffixes(List<PhotoWithInitialPosition> photos) {
+    public static Stream<PhotosWithSecondaryPos> withFileNameSuffixes(List<PhotoWithInitPos> photos) {
         int size = photos.size();
 
-        List<PhotoWithInitialPosition> sorted = photos.stream()
-                .sorted(Comparator.comparing(PhotoWithInitialPosition::getZonedDateTime))
+        List<PhotoWithInitPos> sorted = photos.stream()
+                .sorted(Comparator.comparing(PhotoWithInitPos::getZonedDateTime))
                 .collect(Collectors.toList());
 
         return IntStream.range(0, size)
-                .mapToObj(i -> new PhotosWithSecondaryPosition(sorted.get(i), i, size));
+                .mapToObj(i -> new PhotosWithSecondaryPos(sorted.get(i), i, size));
     }
 }

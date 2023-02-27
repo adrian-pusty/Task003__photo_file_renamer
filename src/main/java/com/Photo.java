@@ -13,9 +13,9 @@ public class Photo
 {
     public static final Map<String, ZoneId> ZONES = initZones();
     private ZonedDateTime time;
-    private String nameWithoutExtension;
     private String extension;
     private String city;
+    private String nameWithoutExtension;
 
     private Photo() {}
 
@@ -32,7 +32,7 @@ public class Photo
         return Optional.empty();
     }
 
-    public void setNameAndExtension(String fileName)
+    private void setNameAndExtension(String fileName)
     {
         String[] split = fileName.split("\\.");
         this.nameWithoutExtension = split[0];

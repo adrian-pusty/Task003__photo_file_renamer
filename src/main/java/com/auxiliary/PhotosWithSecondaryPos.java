@@ -1,11 +1,11 @@
 package com.auxiliary;
 
-public class PhotosWithSecondaryPosition
+public class PhotosWithSecondaryPos
 {
-    private final PhotoWithInitialPosition photo;
+    private final PhotoWithInitPos photo;
     private String secondaryPosition;
 
-    public PhotosWithSecondaryPosition(PhotoWithInitialPosition photo, int secondaryPosition, int nrOfDigits)
+    public PhotosWithSecondaryPos(PhotoWithInitPos photo, int secondaryPosition, int nrOfDigits)
     {
         this.photo = photo;
         this.setSecondaryPosition(secondaryPosition, nrOfDigits);
