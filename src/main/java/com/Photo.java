@@ -12,60 +12,38 @@ import java.util.Optional;
 public class Photo
 {
     public static final Map<String, ZoneId> ZONES = initZones();
+    private final int initialPosition;
     private ZonedDateTime time;
     private String extension;
     private String city;
     private String nameWithoutExtension;
+    private String secondaryPosition;
 
-    private Photo() {}
-
-    public static Optional<Photo> fromArray(String[] arr)
+    private Photo(Builder builder)
     {
-        if (arr.length == 4)
-        {
-            Photo photo = new Photo();
-            photo.setNameAndExtension(arr[0]);
-            photo.setCity(arr[1]);
-            photo.setTime(arr);
-            return Optional.of(photo);
+        time = builder.time;
+        extension = builder.extension;
+        city = builder.city;
+        nameWithoutExtension = builder.nameWithoutExtension;
+        initialPosition = builder.initialPosition;
+        secondaryPosition = builder.secondaryPosition;
+    }
+
+
+    public static Optional<Photo.Builder> fromArray(String[] arr)
+    {
+        if (arr.length == 4) {
+            Builder builder = new Builder().nameAndExtension(arr[0]).city(arr[1]).time(arr);
+            return Optional.of(builder);
         }
         return Optional.empty();
     }
 
-    private void setNameAndExtension(String fileName)
+    public static String numberOfLeadingZeros(int secondaryPosition, int nrOfDigits)
     {
-        String[] split = fileName.split("\\.");
-        this.nameWithoutExtension = split[0];
-        this.extension = split[1];
-    }
-
-    public String getCity()
-    {
-        return city;
-    }
-
-    private void setCity(String city)
-    {
-        this.city = city;
-    }
-
-    public String getExtension()
-    {
-        return extension;
-    }
-
-
-    public ZonedDateTime getTime()
-    {
-        return time;
-    }
-
-    private void setTime(String[] arr)
-    {
-        String city = arr[1];
-        LocalDate date = LocalDate.parse(arr[2], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        LocalTime time = LocalTime.parse(arr[3], DateTimeFormatter.ofPattern("H:mm:ss"));
-        this.time = ZonedDateTime.of(date, time, ZONES.get(city));
+        int i = (int) (Math.log10(nrOfDigits) + 1);
+        String format = "%0" + i + "d";
+        return String.format(format, secondaryPosition + 1);
     }
 
     public static Map<String, ZoneId> initZones()
@@ -75,5 +53,80 @@ public class Photo
         zones.put("Paris", ZoneId.of("Europe/Paris"));
         zones.put("London", ZoneId.of("Europe/London"));
         return zones;
+    }
+
+    public int getInitialPosition()
+    {
+        return initialPosition;
+    }
+
+    public String getFinalName()
+    {
+        return city + secondaryPosition + "." + extension;
+    }
+
+    public static class Builder
+    {
+        private ZonedDateTime time;
+        private String extension;
+        private String city;
+        private String nameWithoutExtension;
+        private int initialPosition;
+        private String secondaryPosition;
+
+        private Builder time(String[] arr)
+        {
+            String city = arr[1];
+            LocalDate date = LocalDate.parse(arr[2], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalTime time = LocalTime.parse(arr[3], DateTimeFormatter.ofPattern("H:mm:ss"));
+            this.time = ZonedDateTime.of(date, time, ZONES.get(city));
+            return this;
+        }
+
+        private Builder nameAndExtension(String fileName)
+        {
+            String[] split = fileName.split("\\.");
+            this.nameWithoutExtension = split[0];
+            this.extension = split[1];
+            return this;
+        }
+
+        public Builder city(String city)
+        {
+            this.city = city;
+            return this;
+        }
+
+        public Builder initialPosition(int initialPosition)
+        {
+            this.initialPosition = initialPosition;
+            return this;
+        }
+
+        public Builder secondaryPosition(int secondaryPosition, int nrOfDigits)
+        {
+            this.secondaryPosition = numberOfLeadingZeros(secondaryPosition, nrOfDigits);
+            return this;
+        }
+
+        public String getCity()
+        {
+            return city;
+        }
+
+        public int getInitialPosition()
+        {
+            return initialPosition;
+        }
+
+        public ZonedDateTime getTime()
+        {
+            return time;
+        }
+
+        public Photo build()
+        {
+            return new Photo(this);
+        }
     }
 }

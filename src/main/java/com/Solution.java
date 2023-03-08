@@ -1,8 +1,5 @@
 package com;
 
-import com.auxiliary.PhotoWithInitPos;
-import com.auxiliary.PhotosWithSecondaryPos;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -16,8 +13,9 @@ import static java.util.stream.Collectors.groupingBy;
 
 class Solution
 {
-    public String solution(String S) {
-        List<Photo> photos = Arrays.stream(S.split("\\r?\\n"))
+    public String solution(String S)
+    {
+        List<Photo.Builder> photos = Arrays.stream(S.split("\\r?\\n"))
                 .map(s -> s
                         .replace(",", "")
                         .split(" "))
@@ -26,29 +24,29 @@ class Solution
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
-        List<PhotoWithInitPos> photosWithInitialPositions = IntStream.range(0, photos.size())
-                .mapToObj(i -> new PhotoWithInitPos(photos.get(i), i))
+        List<Photo.Builder> photosWithInitialPositions = IntStream.range(0, photos.size())
+                .mapToObj(i -> photos.get(i).initialPosition(i))
                 .collect(Collectors.toList());
 
-        Map<String, List<PhotoWithInitPos>> groupedByCity = photosWithInitialPositions.stream()
-                .collect(groupingBy(PhotoWithInitPos::getCity));
+        Map<String, List<Photo.Builder>> groupedByCity = photosWithInitialPositions.stream()
+                .collect(groupingBy(Photo.Builder::getCity));
 
         return groupedByCity.values().stream()
                 .flatMap(Solution::withFileNameSuffixes)
-                .sorted(Comparator.comparing(PhotosWithSecondaryPos::getInitialPosition))
-                .map(PhotosWithSecondaryPos::getFinalName)
+                .sorted(Comparator.comparing(Photo::getInitialPosition))
+                .map(Photo::getFinalName)
                 .collect(Collectors.joining("\n"));
     }
 
-
-    public static Stream<PhotosWithSecondaryPos> withFileNameSuffixes(List<PhotoWithInitPos> photos) {
+    public static Stream<Photo> withFileNameSuffixes(List<Photo.Builder> photos)
+    {
         int size = photos.size();
 
-        List<PhotoWithInitPos> sorted = photos.stream()
-                .sorted(Comparator.comparing(PhotoWithInitPos::getZonedDateTime))
+        List<Photo.Builder> sorted = photos.stream()
+                .sorted(Comparator.comparing(Photo.Builder::getTime))
                 .collect(Collectors.toList());
 
         return IntStream.range(0, size)
-                .mapToObj(i -> new PhotosWithSecondaryPos(sorted.get(i), i, size));
+                .mapToObj(i -> sorted.get(i).secondaryPosition(i, size).build());
     }
 }
