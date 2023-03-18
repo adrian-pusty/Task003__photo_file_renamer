@@ -13,18 +13,14 @@ public class Photo
 {
     public static final Map<String, ZoneId> ZONES = initZones();
     private final int initialPosition;
-    private ZonedDateTime time;
-    private String extension;
-    private String city;
-    private String nameWithoutExtension;
-    private String secondaryPosition;
+    private final String extension;
+    private final String city;
+    private final String secondaryPosition;
 
     private Photo(Builder builder)
     {
-        time = builder.time;
         extension = builder.extension;
         city = builder.city;
-        nameWithoutExtension = builder.nameWithoutExtension;
         initialPosition = builder.initialPosition;
         secondaryPosition = builder.secondaryPosition;
     }
@@ -70,7 +66,6 @@ public class Photo
         private ZonedDateTime time;
         private String extension;
         private String city;
-        private String nameWithoutExtension;
         private int initialPosition;
         private String secondaryPosition;
 
@@ -86,7 +81,6 @@ public class Photo
         private Builder nameAndExtension(String fileName)
         {
             String[] split = fileName.split("\\.");
-            this.nameWithoutExtension = split[0];
             this.extension = split[1];
             return this;
         }
@@ -112,11 +106,6 @@ public class Photo
         public String getCity()
         {
             return city;
-        }
-
-        public int getInitialPosition()
-        {
-            return initialPosition;
         }
 
         public ZonedDateTime getTime()

@@ -24,11 +24,11 @@ class Solution
                 .map(Optional::get)
                 .collect(Collectors.toList());
 
-        List<Photo.Builder> photosWithInitialPositions = IntStream.range(0, photos.size())
+        List<Photo.Builder> withInitialPositions = IntStream.range(0, photos.size())
                 .mapToObj(i -> photos.get(i).initialPosition(i))
                 .collect(Collectors.toList());
 
-        Map<String, List<Photo.Builder>> groupedByCity = photosWithInitialPositions.stream()
+        Map<String, List<Photo.Builder>> groupedByCity = withInitialPositions.stream()
                 .collect(groupingBy(Photo.Builder::getCity));
 
         return groupedByCity.values().stream()
