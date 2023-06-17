@@ -1,4 +1,4 @@
-package com;
+package com.renamer;
 
 import org.junit.jupiter.api.Test;
 

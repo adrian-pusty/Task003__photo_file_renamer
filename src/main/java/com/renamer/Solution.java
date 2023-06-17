@@ -1,4 +1,4 @@
-package com;
+package com.renamer;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,18 +13,6 @@ import static java.util.stream.Collectors.groupingBy;
 
 class Solution
 {
-    public static Stream<Photo> withFileNameSuffixes(List<Photo.Builder> photos)
-    {
-        int size = photos.size();
-
-        List<Photo.Builder> sorted = photos.stream()
-                .sorted(Comparator.comparing(Photo.Builder::getTime))
-                .collect(Collectors.toList());
-
-        return IntStream.range(0, size)
-                .mapToObj(i -> sorted.get(i).secondaryPosition(i, size).build());
-    }
-
     public String solution(String S)
     {
         List<Photo.Builder> photos = Arrays.stream(S.split("\\r?\\n"))
@@ -48,5 +36,17 @@ class Solution
                 .sorted(Comparator.comparing(Photo::getInitialPosition))
                 .map(Photo::getFinalName)
                 .collect(Collectors.joining("\n"));
+    }
+
+    private static Stream<Photo> withFileNameSuffixes(List<Photo.Builder> photos)
+    {
+        List<Photo.Builder> sorted = photos.stream()
+                .sorted(Comparator.comparing(Photo.Builder::getTime))
+                .collect(Collectors.toList());
+
+        int size = photos.size();
+
+        return IntStream.range(0, size)
+                .mapToObj(i -> sorted.get(i).secondaryPosition(i, size).build());
     }
 }

@@ -1,4 +1,6 @@
-package com;
+package com.renamer;
+
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -12,6 +14,7 @@ import java.util.Optional;
 public class Photo
 {
     public static final Map<String, ZoneId> ZONES = initZones();
+    @Getter
     private final int initialPosition;
     private final String extension;
     private final String city;
@@ -35,14 +38,7 @@ public class Photo
         return Optional.empty();
     }
 
-    public static String numberOfLeadingZeros(int secondaryPosition, int nrOfDigits)
-    {
-        int i = (int) (Math.log10(nrOfDigits) + 1);
-        String format = "%0" + i + "d";
-        return String.format(format, secondaryPosition + 1);
-    }
-
-    public static Map<String, ZoneId> initZones()
+    private static Map<String, ZoneId> initZones()
     {
         Map<String, ZoneId> zones = new HashMap<>();
         zones.put("Warsaw", ZoneId.of("Europe/Warsaw"));
@@ -51,10 +47,6 @@ public class Photo
         return zones;
     }
 
-    public int getInitialPosition()
-    {
-        return initialPosition;
-    }
 
     public String getFinalName()
     {
@@ -63,8 +55,10 @@ public class Photo
 
     public static class Builder
     {
+        @Getter
         private ZonedDateTime time;
         private String extension;
+        @Getter
         private String city;
         private int initialPosition;
         private String secondaryPosition;
@@ -85,7 +79,7 @@ public class Photo
             return this;
         }
 
-        public Builder city(String city)
+        private Builder city(String city)
         {
             this.city = city;
             return this;
@@ -103,14 +97,11 @@ public class Photo
             return this;
         }
 
-        public String getCity()
+        private static String numberOfLeadingZeros(int secondaryPosition, int nrOfDigits)
         {
-            return city;
-        }
-
-        public ZonedDateTime getTime()
-        {
-            return time;
+            int i = (int) (Math.log10(nrOfDigits) + 1);
+            String format = "%0" + i + "d";
+            return String.format(format, secondaryPosition + 1);
         }
 
         public Photo build()
